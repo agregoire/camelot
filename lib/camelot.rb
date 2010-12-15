@@ -1,0 +1,1 @@
+require 'camelot/le_devoir'

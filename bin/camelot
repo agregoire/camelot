@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'yaml'
+require 'camelot'
+
+if File.exists?(File.expand_path("~/.camelot"))
+  config = YAML.load_file(File.expand_path("~/.camelot"))["le_devoir"]
+else
+  puts "Missing ~/.camelot file"
+  puts "Create it with this content:"
+  puts "le_devoir:\n    email: mon.courriel@foo.com\n    password: bar\n    path: '/Users/moi/Dropbox/Le Devoir'"
+  exit 1
+end
+
+le_devoir = LeDevoir.new(:password => config["password"], :email => config["email"], :path => config["path"])
+le_devoir.download_files

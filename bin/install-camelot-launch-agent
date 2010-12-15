@@ -1,0 +1,44 @@
+#!/usr/bin/env ruby
+
+puts "Installing camelot's LaunchAgent... "
+launch_agent_file = "com.agregoire.camelot.plist"
+launch_agent_path = File.expand_path(File.join('~/Library/LaunchAgents/', launch_agent_file))
+
+if (path_to_camelot = `which camelot`.chomp) == ""
+  puts "\ncamelot cannot be found on your system."
+  puts "Please install it as follows:"
+  puts "  gem intall camelot"
+  exit 0
+else
+  launch_agent_content = <<LA
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.agregoire.camelot</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>#{path_to_camelot}</string>
+	</array>
+	<key>StartCalendarInterval</key>
+	<dict>
+		<key>Hour</key>
+		<integer>4</integer>
+		<key>Minute</key>
+		<integer>0</integer>
+	</dict>
+</dict>
+</plist>
+LA
+
+  if system("launchctl list #{launch_agent_file.sub(/\.plist$/,'')}")
+    puts "camelot is alread loaded. Unloading it..."
+    system("launchctl unload #{launch_agent_path}") 
+    puts "Loading the new one..."
+  end
+  la = File.open(launch_agent_path, "w")
+  la.puts launch_agent_content
+  la.close
+  puts "\ndone !" if system("launchctl load #{launch_agent_path}")
+end
